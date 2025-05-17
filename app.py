@@ -1,38 +1,29 @@
 # Streamlit app integrating forecasting and optimization UI
 
 import streamlit as st
-import pandas as pd
+import preprocess
 import forecast
 import optimize
-import preprocess
 
-st.set_page_config(page_title="Inventory Forecasting App", layout="wide")
+st.title("📊 Inventory Demand Forecasting App")
 
-st.title("📦 Inventory Forecasting & Optimization")
-st.markdown("""
-Upload your sales data to generate forecasts and optimize inventory levels.
-""")
+uploaded_file = st.file_uploader("Upload your sales data (CSV or Excel)", type=['csv', 'xlsx', 'xls'])
 
-uploaded_file = st.file_uploader("📁 Upload sales data (CSV or Excel)", type=["csv", "xlsx"])
+if uploaded_file is not None:
+    try:
+        preprocessed_df = preprocess.preprocess_data(uploaded_file)
+        st.write("### Preprocessed Data Preview:")
+        st.dataframe(preprocessed_df.head())
 
-if uploaded_file:
-    # Preprocess
-    st.subheader("🔍 Raw Data Preview")
-    raw_df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith('.csv') else pd.read_excel(uploaded_file)
-    st.dataframe(raw_df.head())
+        forecast_df = forecast.forecast_demand(preprocessed_df)
+        st.write("### Forecasted Demand:")
+        st.line_chart(forecast_df.set_index('ds')['yhat'])
 
-    # Forecast
-    st.subheader("📈 Forecasted Demand")
-    preprocessed_df = preprocess.preprocess_data(uploaded_file)
-    forecast_df = forecast_demand(preprocessed_df)
-    st.line_chart(forecast_df.set_index("ds")["yhat"])
-    st.dataframe(forecast_df.tail())
+        optimized_inventory = optimize.optimize_inventory(forecast_df)
+        st.write("### Optimized Inventory Levels:")
+        st.dataframe(optimized_inventory)
 
-    # Optimization
-    st.subheader("⚙️ Inventory Optimization")
-    reorder_plan = optimize_inventory(forecast_df)
-    st.dataframe(reorder_plan)
-
+    except Exception as e:
+        st.error(f"Error: {e}")
 else:
-    st.info("Please upload a sales file to get started.")
-
+    st.info("Please upload a CSV or Excel file to get started.")

@@ -5,6 +5,9 @@ import preprocess
 import forecast
 import optimize
 
+optimized_inventory = optimize.optimize_inventory(forecast_df)
+
+
 st.title("📊 Inventory Demand Forecasting App")
 
 uploaded_file = st.file_uploader("Upload your sales data (CSV or Excel)", type=['csv', 'xlsx', 'xls'])

@@ -23,7 +23,7 @@ if uploaded_file:
 
     # Forecast
     st.subheader("📈 Forecasted Demand")
-    preprocessed_df = preprocess_data(uploaded_file)
+    preprocessed_df = preprocess.preprocess_data(uploaded_file)
     forecast_df = forecast_demand(preprocessed_df)
     st.line_chart(forecast_df.set_index("ds")["yhat"])
     st.dataframe(forecast_df.tail())

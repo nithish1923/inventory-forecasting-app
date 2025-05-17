@@ -3,18 +3,8 @@
 import pandas as pd
 
 def preprocess_data(uploaded_file):
-    """
-    Preprocess uploaded sales data for forecasting.
-    
-    Parameters:
-    uploaded_file : Uploaded file object (CSV or Excel)
-    
-    Returns:
-    pd.DataFrame : DataFrame with columns 'ds' (datetime) and 'y' (numeric sales)
-    """
-    # Reset file pointer to start
     uploaded_file.seek(0)
-    
+
     if uploaded_file.name.endswith('.csv'):
         df = pd.read_csv(uploaded_file)
     elif uploaded_file.name.endswith('.xlsx') or uploaded_file.name.endswith('.xls'):
@@ -26,10 +16,19 @@ def preprocess_data(uploaded_file):
 
     if 'date' not in df.columns:
         raise ValueError("Input data must contain a 'date' column.")
-    if 'units_sold' not in df.columns:
-        raise ValueError("Input data must contain a 'units_sold' column.")
+
+    # Try several possible sales columns
+    possible_sales_cols = ['units_sold', 'sales', 'quantity', 'sold_units']
+    sales_col = None
+    for col in possible_sales_cols:
+        if col in df.columns:
+            sales_col = col
+            break
+
+    if not sales_col:
+        raise ValueError(f"Input data must contain one of the sales quantity columns: {possible_sales_cols}")
 
     df['ds'] = pd.to_datetime(df['date'])
-    df['y'] = df['units_sold']
+    df['y'] = df[sales_col]
 
     return df[['ds', 'y']]

@@ -2,9 +2,9 @@
 
 import streamlit as st
 import pandas as pd
-from forecast import forecast_demand
-from optimize import optimize_inventory
-from preprocess import preprocess_data
+import forecast
+import optimize
+import preprocess
 
 st.set_page_config(page_title="Inventory Forecasting App", layout="wide")
 
